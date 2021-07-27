@@ -10,7 +10,7 @@ const styles = {
     },
     header: {
         display: 'flex',
-        flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
         height: '10%',
         paddingLeft: 15,
@@ -37,10 +37,10 @@ const styles = {
         justifyContent: 'flex-start',
         alignItems: 'center',
         borderRadius: 10,
-        padding: 25,
+        padding: 20,
         marginLeft: 5,
         marginRight: 5,
-        marginTop: '10%',
+        marginTop: '5%',
         backgroundColor: 'white'
     },
     scanCardView: {
@@ -111,6 +111,17 @@ const styles = {
     buttonTextStyle: {
         color: 'black',
         fontWeight: 'bold',
+    },
+    bannerAdWrapper: {
+        marginTop:40,
+        width: deviceWidth
+    },
+    bannerAdWrapper1: {
+        width: deviceWidth
+    },
+    bannerAdWrapper2: {
+        marginTop:10,
+        width: deviceWidth
     }
 }
 export default styles;

@@ -1,7 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { TouchableOpacity, Text, Linking, View, Image, ImageBackground, BackHandler } from 'react-native';
+import { TouchableOpacity, Text, Linking, View, Image, ImageBackground, BackHandler, Button } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import styles from './scanStyle'
+import styles from './scanStyle';
+import { InterstitialAd, TestIds, BannerAd, BannerAdSize, RewardedAd, AdEventType, RewardedAdEventType } from '@react-native-firebase/admob';
+import AppConfig from '../config/AppConfig';
+
+
 
 class Scan extends Component {
     constructor(props) {
@@ -11,6 +15,21 @@ class Scan extends Component {
             ScanResult: false,
             result: null
         };
+    }
+    
+    showInterstitialAd = () => {
+        // Create a new instance
+        const interstitialAd = InterstitialAd.createForAdRequest(AppConfig.ADMOD_APP_ID_FULL);
+
+        // Add event handlers
+        interstitialAd.onAdEvent((type, error) => {
+            if (type === AdEventType.LOADED) {
+                interstitialAd.show();
+            }
+        });
+
+        // Load a new advert
+        interstitialAd.load();
     }
 
     onSuccess = (e) => {
@@ -34,9 +53,12 @@ class Scan extends Component {
 
     activeQR = () => {
         this.setState({ scan: true })
+        this.showInterstitialAd()
     }
     scanAgain = () => {
         this.setState({ scan: true, ScanResult: false })
+        this.showInterstitialAd()
+
     }
 
     render() {
@@ -44,28 +66,57 @@ class Scan extends Component {
         return (
             <View style={styles.scrollViewStyle}>
                 <Fragment>
-                    <View style={styles.header}>
-                        <TouchableOpacity onPress={()=> BackHandler.exitApp()}>
-                            <Image source={require('./assets/back.png')} style={{height: 36, width: 36}}></Image>
-                        </TouchableOpacity>
-                        <Text style={styles.textTitle}>Scan QR Code</Text>
-                    </View>
                     {!scan && !ScanResult &&
-                        <View style={styles.cardView} >
-                            <Image source={require('./assets/camera.png')} style={{height: 36, width: 36}}></Image>
-                            <Text numberOfLines={8} style={styles.descText}>Please move your camera {"\n"} over the QR Code</Text>
-                            <Image source={require('./assets/qr-code.png')} style={{margin: 10}}></Image>
-                            <TouchableOpacity onPress={this.activeQR} style={styles.buttonScan}>
-                                <View style={styles.buttonWrapper}>
-                                <Image source={require('./assets/camera.png')} style={{height: 36, width: 36}}></Image>
-                                <Text style={{...styles.buttonTextStyle, color: '#2196f3'}}>Scan QR Code</Text>
-                                </View>
-                            </TouchableOpacity>
+                        <View style={styles.header}>
+                            <Text style={styles.textTitle}>Scan QR Code</Text>
                         </View>
                     }
                     {ScanResult &&
+                        <View style={styles.header}>
+                            <Text style={styles.textTitle}>Result</Text>
+                        </View>
+                    }
+                    {scan &&
+                        <View style={styles.header}>
+                            <Text style={styles.textTitle}>Scan Your Code</Text>
+                        </View>
+                    }
+                    {!scan && !ScanResult &&
+                        <View>
+                            <View style={styles.cardView} >
+                                <Image source={require('./assets/camera.png')} style={{height: 36, width: 36}}></Image>
+                                <Text numberOfLines={8} style={styles.descText}>Please move your camera {"\n"} over the QR Code</Text>
+                                <Image source={require('./assets/qr-code.png')} style={{margin: 10}}></Image>
+                                <TouchableOpacity onPress={this.activeQR} style={styles.buttonScan}>
+                                    <View style={styles.buttonWrapper}>
+                                    <Image source={require('./assets/camera.png')} style={{height: 36, width: 36}}></Image>
+                                    <Text style={{...styles.buttonTextStyle, color: '#2196f3'}}>Scan QR Code</Text>
+                                    </View>
+                                    <View>
+                                </View>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.bannerAdWrapper}>
+                                <BannerAd
+                                    unitId={AppConfig.ADMOD_APP_ID}
+                                    size={BannerAdSize.SMART_BANNER}
+                                    requestOptions={{
+                                        requestNonPersonalizedAdsOnly: true,
+                                    }}
+                                    onAdLoaded={() => {
+                                        console.log('Advert loaded');
+                                    }}
+                                    onAdFailedToLoad={(error) => {
+                                        console.error('Advert failed to load: ', error);
+                                    }}
+                                />
+                            </View>
+                        </View>
+                        
+                    }
+                    {ScanResult &&
                         <Fragment>
-                            <Text style={styles.textTitle1}>Result</Text>
+                            <View>
                             <View style={ScanResult ? styles.scanCardView : styles.cardView}>
                                 <Text>Type : {result.type}</Text>
                                 <Text>Result : {result.data}</Text>
@@ -76,6 +127,22 @@ class Scan extends Component {
                                         <Text style={{...styles.buttonTextStyle, color: '#2196f3'}}>Click to scan again</Text>
                                     </View>
                                 </TouchableOpacity>
+                            </View>
+                            <View style={styles.bannerAdWrapper2}>
+                                        <BannerAd
+                                            unitId={AppConfig.ADMOD_APP_ID}
+                                            size={BannerAdSize.SMART_BANNER}
+                                            requestOptions={{
+                                                requestNonPersonalizedAdsOnly: true,
+                                            }}
+                                            onAdLoaded={() => {
+                                                console.log('Advert loaded');
+                                            }}
+                                            onAdFailedToLoad={(error) => {
+                                                console.error('Advert failed to load: ', error);
+                                            }}
+                                        />
+                                    </View>
                             </View>
                         </Fragment>
                     }
@@ -98,6 +165,21 @@ class Scan extends Component {
                                             onLongPress={() => this.setState({ scan: false })}>
                                             <Image source={require('./assets/camera2.png')}></Image>
                                         </TouchableOpacity>
+                                        <View style={styles.bannerAdWrapper1}>
+                                            <BannerAd
+                                                unitId={AppConfig.ADMOD_APP_ID}
+                                                size={BannerAdSize.SMART_BANNER}
+                                                requestOptions={{
+                                                    requestNonPersonalizedAdsOnly: true,
+                                                }}
+                                                onAdLoaded={() => {
+                                                    console.log('Advert loaded');
+                                                }}
+                                                onAdFailedToLoad={(error) => {
+                                                    console.error('Advert failed to load: ', error);
+                                                }}
+                                            />
+                                         </View>
                                     </ImageBackground>
                                 </View>
                             }
